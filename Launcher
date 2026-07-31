@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD Focus Launcher</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 gap-2">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-emerald-400">⚡ Focus Launcher</h1>
+                <p class="text-sm text-slate-400">Low-friction task management built for ADHD brains.</p>
+            </div>
+            <div id="current-time" class="text-sm font-mono bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-slate-300">
+                00:00:00
+            </div>
+        </header>
+
+        <!-- Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- SECTION 1: Rule of One (Anchor Task) -->
+            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-semibold text-emerald-300 flex items-center gap-2">
+                            <span>🎯</span> The Rule of One
+                        </h2>
+                        <span class="text-xs bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-800">Only One Anchor</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">Hide all other distractions. What is the single most important action right now?</p>
+                    
+                    <input type="text" id="anchor-input" placeholder="e.g., Send client proposal email..." 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors font-medium">
+                </div>
+
+                <div class="mt-6 flex items-center justify-between">
+                    <button onclick="completeAnchor()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all shadow-md active:scale-95 cursor-pointer">
+                        ✨ Done / Clear Task
+                    </button>
+                    <span id="anchor-status" class="text-xs text-slate-500 italic">No active anchor set</span>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Visual Countdown Timer -->
+            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-semibold text-emerald-300 flex items-center gap-2">
+                            <span>⏱️</span> Micro-Sprint Timer
+                        </h2>
+                        <span class="text-xs bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-800">Beat Time Blindness</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">Set a short sprint. Momentum matters more than duration.</p>
+                    
+                    <div class="text-center my-2">
+                        <span id="timer-display" class="text-5xl font-mono font-bold tracking-wider text-cyan-400">15:00</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <!-- Preset Buttons -->
+                    <div class="flex gap-2 justify-center">
+                        <button onclick="setTimer(5)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition-colors cursor-pointer">5m</button>
+                        <button onclick="setTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition-colors cursor-pointer">15m</button>
+                        <button onclick="setTimer(25)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition-colors cursor-pointer">25m</button>
+                    </div>
+                    <!-- Controls -->
+                    <div class="flex gap-2">
+                        <button id="timer-toggle" onclick="toggleTimer()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-semibold py-2.5 rounded-xl text-sm transition-all shadow-md active:scale-95 cursor-pointer">
+                            Start Sprint
+                        </button>
+                        <button onclick="resetTimer()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-sm transition-colors border border-slate-700 cursor-pointer">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: External Memory Inbox -->
+            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-semibold text-emerald-300 flex items-center gap-2">
+                            <span>📥</span> Working Memory Dump
+                        </h2>
+                        <span class="text-xs bg-amber-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800">Clear Your Head</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">Brain-dump incoming thoughts so you don't lose focus mid-task.</p>
+                    
+                    <form onsubmit="addInboxItem(event)" class="flex gap-2 mb-3">
+                        <input type="text" id="inbox-input" placeholder="Type a stray thought or task..." 
+                            class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors">
+                        <button type="submit" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm transition-all cursor-pointer">
+                            Add
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-36 overflow-y-auto">
+                    <ul id="inbox-list" class="space-y-2 text-sm">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </section>
+
+            <!-- SECTION 4: The Parking Lot Pad -->
+            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-semibold text-emerald-300 flex items-center gap-2">
+                            <span>🛑</span> Distraction Parking Lot
+                        </h2>
+                        <span class="text-xs bg-rose-950 text-rose-400 px-2 py-0.5 rounded-full border border-rose-800">Park & Return</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">Mid-task impulse to check social media or web shop? Park it here temporarily.</p>
+                </div>
+
+                <div>
+                    <textarea id="parking-lot" placeholder="Jot down interruptions or random urges, then immediately go back to work..." 
+                        class="w-full h-36 bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-rose-500 transition-colors resize-none"></textarea>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Live Clock
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString();
+        }, 1000);
+
+        // Rule of One Persistence & Interaction
+        const anchorInput = document.getElementById('anchor-input');
+        const anchorStatus = document.getElementById('anchor-status');
+        
+        anchorInput.value = localStorage.getItem('adhd_anchor') || '';
+        if(anchorInput.value) anchorStatus.innerText = "Active anchor locked 🔒";
+
+        anchorInput.addEventListener('input', () => {
+            localStorage.setItem('adhd_anchor', anchorInput.value);
+            anchorStatus.innerText = anchorInput.value ? "Active anchor locked 🔒" : "No active anchor set";
+        });
+
+        function completeAnchor() {
+            anchorInput.value = '';
+            localStorage.removeItem('adhd_anchor');
+            anchorStatus.innerText = "🎉 Anchor completed!";
+            setTimeout(() => { anchorStatus.innerText = "No active anchor set"; }, 3000);
+        }
+
+        // Timer Logic
+        let totalSeconds = 15 * 60;
+        let timerInterval = null;
+        let isRunning = false;
+        const timerDisplay = document.getElementById('timer-display');
+        const timerToggle = document.getElementById('timer-toggle');
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const secs = (totalSeconds % 60).toString().padStart(2, '0');
+            timerDisplay.innerText = `${mins}:${secs}`;
+        }
+
+        function setTimer(mins) {
+            pauseTimer();
+            totalSeconds = mins * 60;
+            updateTimerDisplay();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (totalSeconds <= 0) return;
+            isRunning = true;
+            timerToggle.innerText = "Pause";
+            timerToggle.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-slate-950 font-semibold py-2.5 rounded-xl text-sm transition-all shadow-md active:scale-95 cursor-pointer";
+            
+            timerInterval = setInterval(() => {
+                if (totalSeconds > 0) {
+                    totalSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    pauseTimer();
+                    alert("⏰ Micro-sprint complete! Take a deep breath.");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            timerToggle.innerText = "Start Sprint";
+            timerToggle.className = "flex-1 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-semibold py-2.5 rounded-xl text-sm transition-all shadow-md active:scale-95 cursor-pointer";
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            setTimer(15);
+        }
+
+        // Inbox Logic
+        let inboxItems = JSON.parse(localStorage.getItem('adhd_inbox')) || [];
+        const inboxList = document.getElementById('inbox-list');
+
+        function renderInbox() {
+            inboxList.innerHTML = '';
+            if (inboxItems.length === 0) {
+                inboxList.innerHTML = '<li class="text-slate-600 italic text-center py-4">Inbox is clean. Dump thoughts here safely.</li>';
+                return;
+            }
+            inboxItems.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center bg-slate-900 px-3 py-2 rounded-lg border border-slate-800 text-slate-300";
+                li.innerHTML = `
+                    <span class="truncate pr-2">${item}</span>
+                    <button onclick="removeInboxItem(${index})" class="text-slate-500 hover:text-rose-400 text-xs px-2 py-1 transition-colors cursor-pointer">✕</button>
+                `;
+                inboxList.appendChild(li);
+            });
+        }
+
+        function addInboxItem(e) {
+            e.preventDefault();
+            const input = document.getElementById('inbox-input');
+            if (!input.value.trim()) return;
+            inboxItems.push(input.value.trim());
+            localStorage.setItem('adhd_inbox', JSON.stringify(inboxItems));
+            input.value = '';
+            renderInbox();
+        }
+
+        function removeInboxItem(index) {
+            inboxItems.splice(index, 1);
+            localStorage.setItem('adhd_inbox', JSON.stringify(inboxItems));
+            renderInbox();
+        }
+
+        renderInbox();
+
+        // Parking Lot Persistence
+        const parkingLot = document.getElementById('parking-lot');
+        parkingLot.value = localStorage.getItem('adhd_parking') || '';
+        parkingLot.addEventListener('input', () => {
+            localStorage.setItem('adhd_parking', parkingLot.value);
+        });
+    </script>
+</body>
+</html>
